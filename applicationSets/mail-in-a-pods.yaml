@@ -13,7 +13,7 @@ spec:
     metadata:
       name: 'mail-in-a-pods-{{name}}'
     spec:
-      project: cluster-addons
+      project: mail-in-a-pods
       source:
         repoURL: https://github.com/OpenDOps/argo-mail-in-a-pods #self-reference
         targetRevision: main
