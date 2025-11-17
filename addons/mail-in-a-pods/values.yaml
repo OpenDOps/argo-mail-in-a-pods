@@ -1,1 +1,24 @@
-mail-in-a-pods: {}
+mail-in-a-pods:
+  global:
+    storageClass: vultr-block-storage
+    nodeSelector:
+      kubernetes.io/os: linux
+      node-role.kubernetes.io/system-workloads: ""
+    tolerations:
+      - key: node-role
+        operator: Equal
+        value: system-workloads
+        effect: NoExecute
+
+  mailinabox:
+    storage:
+      size: 50Gi
+
+  bind:
+    # It is disabled by default
+    storage:
+      size: 10Gi
+
+  nsd:
+    storage:
+      size: 10Gi
