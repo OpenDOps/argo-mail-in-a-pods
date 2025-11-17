@@ -23,12 +23,13 @@ mail-in-a-pods:
     storage:
       size: 10Gi
 
-  httpPlaceholder:
-    nodeSelector:
-      kubernetes.io/os: linux
-      node-role.kubernetes.io/log-workloads: ""
-    tolerations:
-      - key: node-role
-        operator: "Equal"
-        value: log-workloads #Change to dex-app-workloads
-        effect: NoExecute
+  gateway:
+    httpPlaceholder:
+      nodeSelector:
+        kubernetes.io/os: linux
+        node-role.kubernetes.io/log-workloads: ""
+      tolerations:
+        - key: node-role
+          operator: "Equal"
+          value: log-workloads #Change to dex-app-workloads
+          effect: NoExecute
