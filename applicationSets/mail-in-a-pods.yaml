@@ -33,3 +33,14 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - ServerSideApply=true
+        ignoreDifferences:
+          # Ignore Secret data differences (cert-manager manages the data)
+          - group: ""
+            kind: Secret
+            namespace: mailer
+            jsonPointers:
+              - /data
+            jqPathExpressions:
+              - '.metadata.annotations."cert-manager.io/certificate-name"'
+      # Resource tracking: link cert-manager Secrets to this Application
+      # Note: Secrets are hidden in UI by default for security, but will appear in CLI
