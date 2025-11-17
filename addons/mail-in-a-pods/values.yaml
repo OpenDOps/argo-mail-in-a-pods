@@ -5,20 +5,20 @@ mail-in-a-pods:
       kubernetes.io/os: linux
       node-role.kubernetes.io/system-workloads: ""
     tolerations:
-      - key: node-role
-        operator: Equal
-        value: system-workloads
-        effect: NoExecute
+    - key: node-role
+      operator: Equal
+      value: system-workloads
+      effect: NoExecute
 
   mailinabox:
     nodeSelector:
       kubernetes.io/os: linux
       node-role.kubernetes.io/log-workloads: ""
     tolerations:
-      - key: node-role
-        operator: "Equal"
-        value: log-workloads #Change to dex-app-workloads
-        effect: NoExecute
+    - key: node-role
+      operator: "Equal"
+      value: log-workloads #Change to dex-app-workloads
+      effect: NoExecute
     storage:
       size: 50Gi
 
@@ -37,7 +37,20 @@ mail-in-a-pods:
         kubernetes.io/os: linux
         node-role.kubernetes.io/log-workloads: ""
       tolerations:
+      - key: node-role
+        operator: "Equal"
+        value: log-workloads #Change to dex-app-workloads
+        effect: NoExecute
+
+  certManager:
+    acme:
+      email: "admin@opendops.tech"
+      http01:
+        nodeSelector:
+          kubernetes.io/os: linux
+          node-role.kubernetes.io/system-workloads: ""
+        tolerations:
         - key: node-role
-          operator: "Equal"
-          value: log-workloads #Change to dex-app-workloads
+          operator: Equal
+          value: system-workloads
           effect: NoExecute
