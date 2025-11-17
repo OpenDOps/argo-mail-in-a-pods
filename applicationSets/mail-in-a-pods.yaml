@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: cert-manager
+  name: mail-in-a-pods
   namespace: argocd
 spec:
   generators:
@@ -11,7 +11,7 @@ spec:
             nginx-ingress: enabled
   template:
     metadata:
-      name: 'cert-manager-{{name}}'
+      name: 'mail-in-a-pods-{{name}}'
     spec:
       project: cluster-addons
       source:
