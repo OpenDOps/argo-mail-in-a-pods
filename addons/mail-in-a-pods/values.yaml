@@ -46,7 +46,7 @@ mail-in-a-pods:
       errorLogLevel: "debug" # Error log level: "debug", "info", "error", "panic", "fatal"
     staticsServer:
       enabled: true
-      placeholderEnabled: false
+      placeholderEnabled: true
       nodeSelector:
         kubernetes.io/os: linux
         node-role.kubernetes.io/log-workloads: ""
