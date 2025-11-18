@@ -2,7 +2,7 @@ mail-in-a-pods:
   global:
     primaryHostname: mailer4.kuprin.su
     # gateIp: "95.179.138.227"
-    storageClass: vultr-block-storage
+    storageClass: vultr-block-storage-hdd
     nodeSelector:
       kubernetes.io/os: linux
       node-role.kubernetes.io/system-workloads: ""
@@ -27,11 +27,11 @@ mail-in-a-pods:
   bind:
     # It is disabled by default
     storage:
-      size: 10Gi
+      size: 40Gi
 
   nsd:
     storage:
-      size: 10Gi
+      size: 40Gi
 
     service:
       type: NodePort
