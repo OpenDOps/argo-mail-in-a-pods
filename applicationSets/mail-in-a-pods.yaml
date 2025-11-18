@@ -42,5 +42,10 @@ spec:
               - /data
             jqPathExpressions:
               - '.metadata.annotations."cert-manager.io/certificate-name"'
+          # Ignore PostSync hook Job - prevent ArgoCD from waiting for it
+          - group: "batch"
+            kind: Job
+            name: argocd-track-cert-secrets-mail-in-a-pods
+            namespace: mailer
       # Resource tracking: link cert-manager Secrets to this Application
       # Note: Secrets are hidden in UI by default for security, but will appear in CLI
