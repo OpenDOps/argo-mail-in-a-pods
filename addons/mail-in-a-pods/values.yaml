@@ -1,6 +1,6 @@
 mail-in-a-pods:
   global:
-    primaryHostname: mailer.kuprin.su
+    primaryHostname: mailer3.kuprin.su
     storageClass: vultr-block-storage
     nodeSelector:
       kubernetes.io/os: linux
