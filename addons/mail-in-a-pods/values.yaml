@@ -40,6 +40,10 @@ mail-in-a-pods:
         tcp: 32767
 
   gateway:
+    logging:
+      enabled: true # Enable access and error logging
+      agentLogLevel: "debug" # Access log level: "debug", "info", "error", "panic", "fatal"
+      errorLogLevel: "debug" # Error log level: "debug", "info", "error", "panic", "fatal"
     staticsServer:
       enabled: true
       placeholderEnabled: false
