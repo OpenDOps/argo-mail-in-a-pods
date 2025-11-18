@@ -40,7 +40,9 @@ mail-in-a-pods:
         tcp: 32767
 
   gateway:
-    httpPlaceholder:
+    staticsServer:
+      enabled: true
+      placeholderEnabled: false
       nodeSelector:
         kubernetes.io/os: linux
         node-role.kubernetes.io/log-workloads: ""
