@@ -42,6 +42,21 @@ spec:
               - /data
             jqPathExpressions:
               - '.metadata.annotations."cert-manager.io/certificate-name"'
+          # Ignore HTTPRoute backendRef differences - route / to mailinabox instead of statics-server
+          - group: gateway.networking.k8s.io
+            kind: HTTPRoute
+            name: mail-in-a-pods-http
+            namespace: mailer
+            jsonPointers:
+              - /spec/rules/1/backendRefs/0/name
+              - /spec/rules/1/backendRefs/0/port
+          # Ignore Service externalTrafficPolicy - set to Cluster for LoadBalancer routing
+          - group: ""
+            kind: Service
+            name: mail-in-a-pods-gateway-nginx
+            namespace: mailer
+            jsonPointers:
+              - /spec/externalTrafficPolicy
           # Ignore Gateway status - controller manages the status
           - group: gateway.networking.k8s.io
             kind: Gateway
