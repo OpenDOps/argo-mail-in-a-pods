@@ -47,5 +47,24 @@ spec:
             kind: Job
             name: argocd-track-cert-secrets-mail-in-a-pods
             namespace: mailer
+          # Ignore hook RBAC resources
+          - group: ""
+            kind: ServiceAccount
+            name: argocd-cert-secret-tracker
+            namespace: mailer
+          - group: "rbac.authorization.k8s.io"
+            kind: Role
+            name: argocd-cert-secret-tracker
+            namespace: mailer
+          - group: "rbac.authorization.k8s.io"
+            kind: RoleBinding
+            name: argocd-cert-secret-tracker
+            namespace: mailer
+          - group: "rbac.authorization.k8s.io"
+            kind: ClusterRole
+            name: argocd-cert-secret-tracker
+          - group: "rbac.authorization.k8s.io"
+            kind: ClusterRoleBinding
+            name: argocd-cert-secret-tracker-mailer
       # Resource tracking: link cert-manager Secrets to this Application
       # Note: Secrets are hidden in UI by default for security, but will appear in CLI
