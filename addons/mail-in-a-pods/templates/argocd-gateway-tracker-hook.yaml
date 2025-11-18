@@ -23,6 +23,16 @@ spec:
     spec:
       serviceAccountName: argocd-gateway-tracker
       restartPolicy: Never
+      # Node selection and tolerations for the hook Job
+      # This allows the Job to run on system-workloads nodes (like cert-manager)
+      nodeSelector:
+        kubernetes.io/os: linux
+        node-role.kubernetes.io/system-workloads: ""
+      tolerations:
+      - key: node-role
+        operator: Equal
+        value: system-workloads
+        effect: NoExecute
       containers:
       - name: track-gateway-resources
         image: bitnami/kubectl:latest
