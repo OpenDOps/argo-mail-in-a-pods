@@ -1,6 +1,7 @@
 mail-in-a-pods:
   global:
     primaryHostname: mailer4.kuprin.su
+    gateIp: "95.179.138.227"
     storageClass: vultr-block-storage
     nodeSelector:
       kubernetes.io/os: linux
@@ -51,7 +52,7 @@ mail-in-a-pods:
 
   certManager:
     acme:
-      server: https://acme-staging-v02.api.letsencrypt.org/directory # Use for staging
+      # server: https://acme-staging-v02.api.letsencrypt.org/directory # Use for staging
       email: "admin@opendops.tech"
       http01:
         nodeSelector:
