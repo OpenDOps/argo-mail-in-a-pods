@@ -51,6 +51,7 @@ mail-in-a-pods:
 
   certManager:
     acme:
+      server: https://acme-staging-v02.api.letsencrypt.org/directory # Use for staging
       email: "admin@opendops.tech"
       http01:
         nodeSelector:
