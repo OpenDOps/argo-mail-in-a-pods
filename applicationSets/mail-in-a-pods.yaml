@@ -45,26 +45,27 @@ spec:
           # Ignore PostSync hook Job - prevent ArgoCD from waiting for it
           - group: "batch"
             kind: Job
-            name: argocd-track-cert-secrets-mail-in-a-pods
+            name: argocd-track-gateway-resources-mail-in-a-pods
             namespace: mailer
-          # Ignore hook RBAC resources
+          # Ignore Gateway tracking hook RBAC resources
           - group: ""
             kind: ServiceAccount
-            name: argocd-cert-secret-tracker
+            name: argocd-gateway-tracker
             namespace: mailer
           - group: "rbac.authorization.k8s.io"
             kind: Role
-            name: argocd-cert-secret-tracker
+            name: argocd-gateway-tracker
             namespace: mailer
           - group: "rbac.authorization.k8s.io"
             kind: RoleBinding
-            name: argocd-cert-secret-tracker
+            name: argocd-gateway-tracker
             namespace: mailer
           - group: "rbac.authorization.k8s.io"
             kind: ClusterRole
-            name: argocd-cert-secret-tracker
+            name: argocd-gateway-tracker
           - group: "rbac.authorization.k8s.io"
             kind: ClusterRoleBinding
-            name: argocd-cert-secret-tracker-mailer
-      # Resource tracking: link cert-manager Secrets to this Application
+            name: argocd-gateway-tracker-mailer
+      # Resource tracking: link cert-manager Secrets and Gateway controller resources to this Application
       # Note: Secrets are hidden in UI by default for security, but will appear in CLI
+      # Gateway controller-created resources are tracked via PostSync hook that adds tracking annotations

@@ -1,0 +1,146 @@
+---
+# PostSync Hook Job to track Gateway controller-created resources
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: argocd-track-gateway-resources-mail-in-a-pods
+  namespace: mailer
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    argocd.argoproj.io/hook-weight: "5"
+  labels:
+    app.kubernetes.io/name: argocd-gateway-tracker
+    app.kubernetes.io/component: hook
+spec:
+  ttlSecondsAfterFinished: 300
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: argocd-gateway-tracker
+        app.kubernetes.io/component: hook
+    spec:
+      serviceAccountName: argocd-gateway-tracker
+      restartPolicy: Never
+      containers:
+      - name: track-gateway-resources
+        image: bitnami/kubectl:latest
+        command:
+        - /bin/bash
+        - -c
+        - |
+          set -e
+          
+          NAMESPACE="mailer"
+          GATEWAY_NAME="mail-in-a-pods-gateway"
+          
+          # Get Application name by finding the Application that manages this namespace
+          # Look for Application in argocd namespace that targets this namespace
+          # Use kubectl with jsonpath instead of jq for better compatibility
+          APP_NAME=$(kubectl get applications -n argocd -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.destination.namespace}{"\n"}{end}' | \
+            awk -v ns="$NAMESPACE" '$2 == ns && $1 ~ /^mail-in-a-pods/ {print $1; exit}')
+          
+          # Fallback: try to get from Gateway's tracking annotation
+          if [ -z "$APP_NAME" ]; then
+            GATEWAY_TRACKING=$(kubectl get gateway ${GATEWAY_NAME} -n ${NAMESPACE} -o jsonpath='{.metadata.annotations.argocd\.argoproj\.io/tracking-id}' 2>/dev/null || echo "")
+            if [ -n "$GATEWAY_TRACKING" ]; then
+              APP_NAME=$(echo "$GATEWAY_TRACKING" | cut -d':' -f1)
+            else
+              # Final fallback
+              APP_NAME="mail-in-a-pods-argocd-local"
+            fi
+          fi
+          
+          echo "Tracking Gateway resources for Application: $APP_NAME"
+          echo "Namespace: $NAMESPACE"
+          echo "Gateway name: $GATEWAY_NAME"
+          
+          # Function to add tracking annotation to a resource
+          add_tracking_annotation() {
+            local kind=$1
+            local name=$2
+            local tracking_id="${APP_NAME}:${kind}:${NAMESPACE}/${name}"
+            
+            echo "Adding tracking annotation to ${kind}/${name}..."
+            kubectl annotate ${kind} ${name} -n ${NAMESPACE} \
+              "argocd.argoproj.io/tracking-id=${tracking_id}" \
+              --overwrite 2>/dev/null || echo "  ⚠️  Failed to annotate ${kind}/${name} (may not exist yet)"
+          }
+          
+          # Find and track resources created by Gateway controller
+          # Resources are labeled with: gateway.networking.k8s.io/gateway-name=mail-in-a-pods-gateway
+          
+          echo ""
+          echo "=== Tracking Deployments ==="
+          kubectl get deployments -n ${NAMESPACE} \
+            -l gateway.networking.k8s.io/gateway-name=${GATEWAY_NAME} \
+            -o jsonpath='{.items[*].metadata.name}' 2>/dev/null | \
+            tr ' ' '\n' | while read deployment; do
+              [ -n "$deployment" ] && add_tracking_annotation "Deployment" "$deployment"
+            done
+          
+          echo ""
+          echo "=== Tracking Services ==="
+          kubectl get services -n ${NAMESPACE} \
+            -l gateway.networking.k8s.io/gateway-name=${GATEWAY_NAME} \
+            -o jsonpath='{.items[*].metadata.name}' 2>/dev/null | \
+            tr ' ' '\n' | while read service; do
+              [ -n "$service" ] && add_tracking_annotation "Service" "$service"
+            done
+          
+          echo ""
+          echo "=== Tracking ConfigMaps ==="
+          kubectl get configmaps -n ${NAMESPACE} \
+            -l gateway.networking.k8s.io/gateway-name=${GATEWAY_NAME} \
+            -o jsonpath='{.items[*].metadata.name}' 2>/dev/null | \
+            tr ' ' '\n' | while read configmap; do
+              [ -n "$configmap" ] && add_tracking_annotation "ConfigMap" "$configmap"
+            done
+          
+          # Also check for ConfigMaps with name pattern
+          kubectl get configmaps -n ${NAMESPACE} \
+            -o jsonpath='{.items[*].metadata.name}' 2>/dev/null | \
+            tr ' ' '\n' | grep -E "mail-in-a-pods-gateway-nginx" | while read configmap; do
+              [ -n "$configmap" ] && add_tracking_annotation "ConfigMap" "$configmap"
+            done
+          
+          echo ""
+          echo "=== Tracking Secrets ==="
+          kubectl get secrets -n ${NAMESPACE} \
+            -l gateway.networking.k8s.io/gateway-name=${GATEWAY_NAME} \
+            -o jsonpath='{.items[*].metadata.name}' 2>/dev/null | \
+            tr ' ' '\n' | while read secret; do
+              [ -n "$secret" ] && add_tracking_annotation "Secret" "$secret"
+            done
+          
+          # Also check for Secrets with name pattern
+          kubectl get secrets -n ${NAMESPACE} \
+            -o jsonpath='{.items[*].metadata.name}' 2>/dev/null | \
+            tr ' ' '\n' | grep -E "mail-in-a-pods-gateway-nginx" | while read secret; do
+              [ -n "$secret" ] && add_tracking_annotation "Secret" "$secret"
+            done
+          
+          echo ""
+          echo "=== Tracking ReplicaSets ==="
+          kubectl get replicasets -n ${NAMESPACE} \
+            -l gateway.networking.k8s.io/gateway-name=${GATEWAY_NAME} \
+            -o jsonpath='{.items[*].metadata.name}' 2>/dev/null | \
+            tr ' ' '\n' | while read rs; do
+              [ -n "$rs" ] && add_tracking_annotation "ReplicaSet" "$rs"
+            done
+          
+          # Also check ReplicaSets by owner reference to Gateway deployments
+          kubectl get replicasets -n ${NAMESPACE} \
+            -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' 2>/dev/null | \
+            while read rs; do
+              owner=$(kubectl get replicaset $rs -n ${NAMESPACE} -o jsonpath='{.metadata.ownerReferences[?(@.kind=="Deployment")].name}' 2>/dev/null)
+              if [[ "$owner" == *"gateway-nginx"* ]]; then
+                add_tracking_annotation "ReplicaSet" "$rs"
+              fi
+            done
+          
+          echo ""
+          echo "✅ Gateway resource tracking completed!"
+          echo "Resources are now linked to Application: $APP_NAME"
+

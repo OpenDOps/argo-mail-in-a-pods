@@ -1,0 +1,30 @@
+---
+# AppProject configuration to ignore Gateway controller-created resources as orphaned
+# This suppresses the orphaned resource warning but doesn't actually track them
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: mail-in-a-pods
+  namespace: argocd
+spec:
+  orphanedResources:
+    warn: true
+    ignore:
+    # Gateway controller-created resources
+    - kind: Deployment
+      name: mail-in-a-pods-gateway-nginx
+      namespace: mailer
+    - kind: Service
+      name: mail-in-a-pods-gateway-nginx
+      namespace: mailer
+    - kind: ConfigMap
+      name: mail-in-a-pods-gateway-nginx-agent-config
+      namespace: mailer
+    - kind: ConfigMap
+      name: mail-in-a-pods-gateway-nginx-includes-bootstrap
+      namespace: mailer
+    - kind: Secret
+      name: mail-in-a-pods-gateway-nginx-agent-tls
+      namespace: mailer
+    # Note: ReplicaSets and Pods are ephemeral and typically not tracked by ArgoCD
+

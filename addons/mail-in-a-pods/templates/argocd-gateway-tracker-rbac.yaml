@@ -1,0 +1,79 @@
+---
+# ServiceAccount for ArgoCD Gateway resource tracking hook
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: argocd-gateway-tracker
+  namespace: mailer
+  labels:
+    app.kubernetes.io/name: argocd-gateway-tracker
+    app.kubernetes.io/component: hook
+---
+# Role for namespace-scoped resources
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: argocd-gateway-tracker
+  namespace: mailer
+  labels:
+    app.kubernetes.io/name: argocd-gateway-tracker
+    app.kubernetes.io/component: hook
+rules:
+- apiGroups: [""]
+  resources: ["deployments", "services", "configmaps", "secrets", "pods", "replicasets"]
+  verbs: ["get", "list", "patch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "patch"]
+- apiGroups: ["gateway.networking.k8s.io"]
+  resources: ["gateways"]
+  verbs: ["get", "list"]
+---
+# RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: argocd-gateway-tracker
+  namespace: mailer
+  labels:
+    app.kubernetes.io/name: argocd-gateway-tracker
+    app.kubernetes.io/component: hook
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: argocd-gateway-tracker
+subjects:
+- kind: ServiceAccount
+  name: argocd-gateway-tracker
+  namespace: mailer
+---
+# ClusterRole for reading Applications in argocd namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: argocd-gateway-tracker
+  labels:
+    app.kubernetes.io/name: argocd-gateway-tracker
+    app.kubernetes.io/component: hook
+rules:
+- apiGroups: ["argoproj.io"]
+  resources: ["applications"]
+  verbs: ["get", "list"]
+---
+# ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: argocd-gateway-tracker-mailer
+  labels:
+    app.kubernetes.io/name: argocd-gateway-tracker
+    app.kubernetes.io/component: hook
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: argocd-gateway-tracker
+subjects:
+- kind: ServiceAccount
+  name: argocd-gateway-tracker
+  namespace: mailer
+
