@@ -32,6 +32,11 @@ mail-in-a-pods:
     storage:
       size: 10Gi
 
+    type: NodePort
+    nodePort:
+      udp: 32767
+      tcp: 32767
+
   gateway:
     httpPlaceholder:
       nodeSelector:
