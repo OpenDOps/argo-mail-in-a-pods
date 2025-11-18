@@ -42,3 +42,9 @@ spec:
               - /data
             jqPathExpressions:
               - '.metadata.annotations."cert-manager.io/certificate-name"'
+          # Ignore Gateway status - controller manages the status
+          - group: gateway.networking.k8s.io
+            kind: Gateway
+            namespace: mailer
+            jsonPointers:
+              - /status
