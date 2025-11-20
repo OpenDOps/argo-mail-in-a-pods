@@ -1,6 +1,6 @@
 mail-in-a-pods:
   global:
-    primaryHostname: mailer4.kuprin.su
+    primaryHostname: mailer.kuprin.su
     # gateIp: "95.179.138.227"
     storageClass: vultr-block-storage-hdd
     nodeSelector:
