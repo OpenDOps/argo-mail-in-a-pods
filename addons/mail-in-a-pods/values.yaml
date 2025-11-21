@@ -13,6 +13,9 @@ mail-in-a-pods:
       effect: NoExecute
 
   mailinabox:
+    systemUserName: "admin"
+    systemUserPassword: "AdminPassword123!@"
+     #Set a strong password for the system user
     nodeSelector:
       kubernetes.io/os: linux
       node-role.kubernetes.io/log-workloads: ""
