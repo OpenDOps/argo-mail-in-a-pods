@@ -6,5 +6,5 @@ version: 1.0.0
 appVersion: 0.1.12
 dependencies:
   - name: mail-in-a-pods
-    version: 0.1.103
+    version: 0.1.104
     repository: oci://ghcr.io/opendops
