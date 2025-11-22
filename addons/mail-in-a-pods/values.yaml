@@ -46,10 +46,10 @@ mail-in-a-pods:
     enabled: true
     className: "cilium" # Use eBPF based gateway
 
-    infrastructure:
-      annotations:
-        # Try to reuse constant shared LoadBalancer ID for all mail-in-a-pods gateways
-        service.beta.kubernetes.io/vultr-loadbalancer-id: 2cafb6b6-81fa-4e18-9789-9e51799fb912
+    # We use cilium, and it will use NodePort services to not create multiple external LoadBalancers
+    # infrastructure:
+    #   annotations:
+
     # logging:
     #   enabled: true # Enable access and error logging
     #   agentLogLevel: "debug" # Access log level: "debug", "info", "error", "panic", "fatal"
