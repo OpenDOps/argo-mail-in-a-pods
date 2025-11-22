@@ -3,8 +3,8 @@ name: mail-in-a-pods
 description: Mail in a pods Chart
 type: application
 version: 1.0.0
-appVersion: 0.1.17
+appVersion: 0.1.18
 dependencies:
   - name: mail-in-a-pods
-    version: 0.1.106
+    version: 0.1.107
     repository: oci://ghcr.io/opendops
