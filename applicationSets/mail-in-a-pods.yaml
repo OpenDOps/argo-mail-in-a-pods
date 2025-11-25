@@ -63,3 +63,8 @@ spec:
             namespace: mailer
             jsonPointers:
               - /status
+          # Ignore NginxProxy - managed separately/manually
+          - group: gateway.nginx.org
+            kind: NginxProxy
+            name: nginx-gateway-custom-lb
+            namespace: gateway-api
