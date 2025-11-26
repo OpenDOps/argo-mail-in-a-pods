@@ -73,6 +73,15 @@ mail-in-a-pods:
         value: log-workloads #Change to dex-app-workloads
         effect: NoExecute
 
+  ciliumEgressGateway:
+    # The way to select existing hardware for the outbound traffic (SMTP)
+    # It is needed for mail security policies, as they check the source IP of the traffic
+    enabled: true
+    egressIP: "95.179.147.120"
+    nodeSelector:
+      matchLabels:
+        kubernetes.io/hostname: test-main-ams-system-workloads-lrtns-78rtw
+
   certManager:
     acme:
       # server: https://acme-staging-v02.api.letsencrypt.org/directory # Use for staging
